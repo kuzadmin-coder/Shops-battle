@@ -26,6 +26,12 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 .btn-p1{background:linear-gradient(135deg,#ff6b6b,#ee0979);color:#fff}
 .btn-p2{background:linear-gradient(135deg,#4ecdc4,#00b4d8);color:#fff}
 .btn-red{background:linear-gradient(135deg,#ff4444,#c62828);color:#fff}
+.btn-ai{background:linear-gradient(135deg,#6c3483,#1a5276);color:#fff}
+.btn-ai:hover{background:linear-gradient(135deg,#7d3c98,#1f618d)}
+.p2-banner.ai-banner{background:linear-gradient(135deg,rgba(108,52,131,.25),rgba(26,82,118,.2));border:2px solid rgba(155,89,182,.5)}
+@keyframes thinking{0%{content:'🤖 Думает.'}33%{content:'🤖 Думает..'}66%{content:'🤖 Думает...'}}
+.ai-thinking{font-size:22px;font-weight:700;color:#a88bde;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ── Title ── */
 #screen-title{text-align:center}
@@ -155,7 +161,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 <div id="screen-title" class="screen active">
   <div class="title-logo">🛒</div>
   <div class="title-main">Битва Магазинов</div>
-  <div class="title-sub">Карточная игра для двух игроков</div>
+  <div class="title-sub">Карточная игра про российские магазины</div>
   <ul class="title-rules">
     <li>3 раунда, в каждом по 10 дуэлей</li>
     <li>10 карт на руке: 3 особые + 7 случайных</li>
@@ -163,7 +169,10 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
     <li>Проигравший раунд может сменить сеть</li>
     <li>Победитель — кто выиграет 2 раунда из 3</li>
   </ul>
-  <button class="btn btn-gold" onclick="startGame()">⚔️ Начать игру</button>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-gold" onclick="startGame('pvp')">⚔️ Против игрока</button>
+    <button class="btn btn-ai" onclick="startGame('pvc')">🤖 Против компьютера</button>
+  </div>
 </div>
 
 <!-- ═══════════ STORE SELECT ═══════════ -->
@@ -189,7 +198,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
     <div class="matchup-store">
       <img id="ri-p2-img" src="" alt="">
       <div style="margin-top:8px;font-weight:700" id="ri-p2-name"></div>
-      <div style="font-size:12px;color:#7ff">Игрок 2</div>
+      <div style="font-size:12px;color:#a88bde" id="ri-p2-label">Игрок 2</div>
     </div>
   </div>
   <div class="intro-hint" id="ri-hint">По 10 карт каждому: 3 особые + 7 обычных.<br>Играйте по очереди. Передавайте устройство!</div>
@@ -221,10 +230,14 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 
 <!-- ═══════════ HANDOFF ═══════════ -->
 <div id="screen-handoff" class="screen">
-  <div class="handoff-icon">🔄</div>
+  <div class="handoff-icon" id="ho-icon">🔄</div>
   <div class="handoff-title" id="ho-title">Передайте устройство!</div>
   <div class="handoff-sub" id="ho-sub">Игрок 1 сделал выбор.<br>Передайте устройство Игроку 2.</div>
-  <button class="btn btn-p2" onclick="goToP2Turn()">✅ Я готов, Игрок 2</button>
+  <div id="ho-ai-area" style="display:none;text-align:center">
+    <div class="ai-thinking" id="ho-ai-text">🤖 Думает...</div>
+    <div style="font-size:13px;color:#666;margin-top:12px">Компьютер выбирает карту</div>
+  </div>
+  <button class="btn btn-p2" id="ho-btn" onclick="goToP2Turn()">✅ Я готов, Игрок 2</button>
 </div>
 
 <!-- ═══════════ BATTLE RESULT ═══════════ -->
@@ -251,7 +264,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
     </div>
     <div class="battle-vs">VS</div>
     <div class="arena-card right" id="arena-p2">
-      <div style="font-size:12px;color:#7ff;margin-bottom:4px">🛡 Игрок 2</div>
+      <div style="font-size:12px;color:#a88bde;margin-bottom:4px" id="bt-p2-label">🛡 Игрок 2</div>
       <div class="arena-card-img" id="arena-p2-img"></div>
       <div class="arena-card-name" id="arena-p2-name"></div>
       <div class="arena-power" id="arena-p2-pow"></div>
@@ -283,7 +296,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
     </div>
     <div class="score-box score-p2">
       <div class="score-box-num" id="ge-p2-rounds">0</div>
-      <div class="score-box-label">Раунды<br>Игрок 2</div>
+      <div class="score-box-label">Раунды<br><span id="ge-p2-label">Игрок 2</span></div>
     </div>
   </div>
   <div style="font-size:13px;color:#666;margin-bottom:30px" id="ge-store-names"></div>
@@ -399,6 +412,7 @@ const REGULAR_CARDS = [
 // ════════════════════════════════════
 
 const G = {
+  mode: 'pvp',     // 'pvp' | 'pvc'
   round: 1,
   turn: 0,
   matchScore: {p1:0, p2:0},
@@ -414,6 +428,57 @@ const G = {
   ssP2Picked: null,
   ssLoser: null,
 };
+
+// ─── AI helpers ───
+function p2Name() { return G.mode === 'pvc' ? '🤖 Компьютер' : 'Игрок 2'; }
+
+function aiSelectStore(excludeId) {
+  const pool = STORES.filter(s => s.id !== excludeId);
+  return pool[Math.floor(Math.random() * pool.length)].id;
+}
+
+function aiPickCard() {
+  const available = G.hands.p2.filter(c => !c.used);
+  if (!available.length) return null;
+
+  const p1d = G.roundDuels.p1, p2d = G.roundDuels.p2;
+  const remaining = 10 - G.turn;
+  const needed = 6 - p2d;  // wins AI still needs for the round
+  const desperate = needed > 0 && needed >= remaining * 0.6;
+  const ahead = p2d > p1d;
+
+  const specials  = available.filter(c => c.type === 'special');
+  const regulars  = available.filter(c => c.type === 'regular');
+
+  // Effective power of a card (for sorting)
+  function eff(c) {
+    if (c.effect === 'DOUBLE')       return c.power * 2;
+    if (c.effect === 'POWER_BOOST')  return c.power + (c.boostAmt || 3);
+    if (c.effect === 'DEBUFF')       return c.power + (c.debuffAmt || 2);
+    if (c.effect === 'GALYA_CANCEL') return c.power + 3;
+    return c.power;
+  }
+
+  available.sort((a, b) => eff(b) - eff(a));
+
+  // Desperate: play strongest special or highest card
+  if (desperate && specials.length > 0) {
+    specials.sort((a,b) => eff(b)-eff(a));
+    return specials[0];
+  }
+
+  // Ahead: use BLOCK/GALYA to protect lead
+  if (ahead && specials.length > 0) {
+    const guard = specials.find(c => c.effect === 'BLOCK' || c.effect === 'GALYA_CANCEL');
+    if (guard && Math.random() > 0.45) return guard;
+  }
+
+  // Mid-game: random from top-3 (adds unpredictability)
+  const topN = Math.min(3, available.length);
+  // Bias: 60% play top card, 40% random from top-3
+  if (Math.random() < 0.6) return available[0];
+  return available[Math.floor(Math.random() * topN)];
+}
 
 // ════════════════════════════════════
 //  HELPERS
@@ -485,7 +550,11 @@ function updateTopBar() {
 //  STORE SELECT
 // ════════════════════════════════════
 
-function startGame() {
+function startGame(mode) {
+  G.mode = mode || 'pvp';
+  G.round = 1;
+  G.matchScore = {p1:0, p2:0};
+  G.allHistory = [];
   G.ssPhase = 'both';
   G.ssP1Picked = null;
   G.ssP2Picked = null;
@@ -571,14 +640,20 @@ function pickStore(storeId) {
 
 function confirmStoreSelect() {
   if (G.ssPhase === 'both' && G.ssStep === 'p1') {
-    // Move to P2 picking
-    G.ssStep = 'p2';
-    G.ssP2Picked = null;
-    renderStoreSelect();
+    if (G.mode === 'pvc') {
+      // AI auto-picks store, skip P2 selection
+      G.stores.p1 = G.ssP1Picked;
+      G.stores.p2 = aiSelectStore(G.ssP1Picked);
+      showRoundIntro();
+    } else {
+      G.ssStep = 'p2';
+      G.ssP2Picked = null;
+      renderStoreSelect();
+    }
     return;
   }
 
-  // Finalize
+  // Finalize (pvp P2 pick, or p1only/p2only)
   if (G.ssPhase === 'both') {
     G.stores.p1 = G.ssP1Picked;
     G.stores.p2 = G.ssP2Picked;
@@ -605,6 +680,11 @@ function showRoundIntro() {
   document.getElementById('ri-p1-name').textContent = s1.name;
   document.getElementById('ri-p2-img').src  = storeImgSrc(G.stores.p2);
   document.getElementById('ri-p2-name').textContent = s2.name;
+  const riP2Lbl = document.getElementById('ri-p2-label');
+  if (riP2Lbl) riP2Lbl.textContent = p2Name();
+  document.getElementById('ri-hint').innerHTML = G.mode === 'pvc'
+    ? 'По 10 карт каждому: 3 особые + 7 обычных.<br>Компьютер будет ходить автоматически!'
+    : 'По 10 карт каждому: 3 особые + 7 обычных.<br>Играйте по очереди. Передавайте устройство!';
   showScreen('screen-round-intro');
 }
 
@@ -640,9 +720,10 @@ function goToP2Turn() {
 function renderPlayScreen(player) {
   const isP1 = player === 'p1';
   const banner = document.getElementById('play-banner');
-  banner.className = 'player-banner ' + (isP1 ? 'p1-banner' : 'p2-banner');
+  const isAI = !isP1 && G.mode === 'pvc';
+  banner.className = 'player-banner ' + (isP1 ? 'p1-banner' : isAI ? 'p2-banner ai-banner' : 'p2-banner');
   const store = storeById(G.stores[player]);
-  banner.innerHTML = `${isP1 ? '⚔️ Игрок 1' : '🛡 Игрок 2'} — ${store.emoji} ${store.name}`;
+  banner.innerHTML = `${isP1 ? '⚔️ Игрок 1' : (isAI ? '🤖 Компьютер' : '🛡 Игрок 2')} — ${store.emoji} ${store.name}`;
 
   updateTopBar();
 
@@ -709,11 +790,43 @@ function confirmCard(player) {
   if (idx >= 0) G.hands[player][idx].used = true;
 
   if (player === 'p1') {
-    // Show handoff
-    document.getElementById('ho-title').textContent = 'Передайте устройство!';
-    document.getElementById('ho-sub').innerHTML =
-      `Игрок 1 сделал выбор.<br>Передайте устройство <b>Игроку 2</b>.`;
-    showScreen('screen-handoff');
+    if (G.mode === 'pvc') {
+      // AI mode — show thinking screen, then auto-play
+      document.getElementById('ho-icon').textContent = '🤖';
+      document.getElementById('ho-title').textContent = 'Компьютер думает...';
+      document.getElementById('ho-sub').style.display = 'none';
+      document.getElementById('ho-ai-area').style.display = 'block';
+      document.getElementById('ho-btn').style.display = 'none';
+      showScreen('screen-handoff');
+      let dots = 0;
+      const thinkInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        const el = document.getElementById('ho-ai-text');
+        if (el) el.textContent = '🤖 Думает' + '.'.repeat(dots || 1);
+      }, 300);
+      setTimeout(() => {
+        clearInterval(thinkInterval);
+        const aiCard = aiPickCard();
+        if (aiCard) {
+          G.chosen.p2 = aiCard;
+          const idx = G.hands.p2.findIndex(c => c.uid === aiCard.uid);
+          if (idx >= 0) G.hands.p2[idx].used = true;
+        }
+        // Reset handoff screen for next pvp use
+        document.getElementById('ho-icon').textContent = '🔄';
+        document.getElementById('ho-title').textContent = 'Передайте устройство!';
+        document.getElementById('ho-sub').style.display = '';
+        document.getElementById('ho-ai-area').style.display = 'none';
+        document.getElementById('ho-btn').style.display = '';
+        resolveBattle();
+      }, 1200);
+    } else {
+      // PvP handoff
+      document.getElementById('ho-title').textContent = 'Передайте устройство!';
+      document.getElementById('ho-sub').innerHTML =
+        `Игрок 1 сделал выбор.<br>Передайте устройство <b>Игроку 2</b>.`;
+      showScreen('screen-handoff');
+    }
   } else {
     // P2 done — resolve battle
     resolveBattle();
@@ -872,6 +985,8 @@ function showBattleResult(c1, c2, p1Power, p2Power, p1Eff, p2Eff, winner) {
   document.getElementById('bt-p2-duels').textContent = G.roundDuels.p2;
   document.getElementById('bt-store-names').textContent =
     `${storeById(G.stores.p1).name} vs ${storeById(G.stores.p2).name}`;
+  const btP2Lbl = document.getElementById('bt-p2-label');
+  if (btP2Lbl) btP2Lbl.textContent = (G.mode==='pvc' ? '🤖 Компьютер' : '🛡 Игрок 2');
   renderRoundDots('bt-rounds');
 
   const isLastTurn = G.turn >= 9;
@@ -964,31 +1079,63 @@ function endRound() {
   // Offer store change to loser
   G.round++;
 
-  if (roundWinner === 'p1') {
-    // P2 lost - can change
-    changeBox.innerHTML = `
-      <div class="change-store-box">
-        <div class="change-store-title">🔄 Игрок 2 может сменить сеть</div>
-        <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин на следующий раунд?</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn btn-p2" onclick="offerChange('p2')">Сменить сеть</button>
-          <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s2.name}</button>
-        </div>
-      </div>`;
-  } else if (roundWinner === 'p2') {
-    // P1 lost - can change
-    changeBox.innerHTML = `
-      <div class="change-store-box">
-        <div class="change-store-title">🔄 Игрок 1 может сменить сеть</div>
-        <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин на следующий раунд?</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn btn-p1" onclick="offerChange('p1')">Сменить сеть</button>
-          <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s1.name}</button>
-        </div>
-      </div>`;
+  if (G.mode === 'pvc') {
+    // AI mode — AI decides automatically
+    if (roundWinner === 'p1') {
+      // AI (p2) lost — 50% chance it changes store
+      if (Math.random() > 0.5) {
+        const newStore = aiSelectStore(G.stores.p1);
+        const oldName = storeById(G.stores.p2).name;
+        G.stores.p2 = newStore;
+        changeBox.innerHTML = `<div class="alert">🤖 Компьютер меняет сеть: ${oldName} → ${storeById(newStore).name}</div>`;
+      } else {
+        changeBox.innerHTML = `<div class="alert">🤖 Компьютер остаётся в ${s2.name}</div>`;
+      }
+    } else if (roundWinner === 'p2') {
+      // Player (p1) lost — offer change
+      changeBox.innerHTML = `
+        <div class="change-store-box">
+          <div class="change-store-title">🔄 Вы можете сменить сеть</div>
+          <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин?</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-p1" onclick="offerChange('p1')">Сменить сеть</button>
+            <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s1.name}</button>
+          </div>
+        </div>`;
+    }
+    if (roundWinner !== 'p2') {
+      nextArea.innerHTML = `<button class="btn btn-gold" onclick="keepStores()">▶ Следующий раунд →</button>`;
+    } else {
+      // if p2 won, wait for player choice — button added via offerChange/keepStores
+      if (!changeBox.innerHTML.includes('btn-p1')) {
+        nextArea.innerHTML = `<button class="btn btn-gold" onclick="keepStores()">▶ Следующий раунд →</button>`;
+      }
+    }
   } else {
-    // Tie - no change offered, just continue
-    nextArea.innerHTML = `<button class="btn btn-gold" onclick="keepStores()">▶ Следующий раунд →</button>`;
+    // PvP mode — original logic
+    if (roundWinner === 'p1') {
+      changeBox.innerHTML = `
+        <div class="change-store-box">
+          <div class="change-store-title">🔄 Игрок 2 может сменить сеть</div>
+          <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин на следующий раунд?</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-p2" onclick="offerChange('p2')">Сменить сеть</button>
+            <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s2.name}</button>
+          </div>
+        </div>`;
+    } else if (roundWinner === 'p2') {
+      changeBox.innerHTML = `
+        <div class="change-store-box">
+          <div class="change-store-title">🔄 Игрок 1 может сменить сеть</div>
+          <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин на следующий раунд?</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-p1" onclick="offerChange('p1')">Сменить сеть</button>
+            <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s1.name}</button>
+          </div>
+        </div>`;
+    } else {
+      nextArea.innerHTML = `<button class="btn btn-gold" onclick="keepStores()">▶ Следующий раунд →</button>`;
+    }
   }
 
   showScreen('screen-round-end');
@@ -1021,8 +1168,8 @@ function endGame() {
     titleEl.textContent = '🎉 Победа Игрока 1!';
     document.querySelector('.trophy').textContent = '🏆';
   } else if (winner === 'p2') {
-    titleEl.textContent = '🎉 Победа Игрока 2!';
-    document.querySelector('.trophy').textContent = '🏆';
+    titleEl.textContent = G.mode === 'pvc' ? '🤖 Победа компьютера!' : '🎉 Победа Игрока 2!';
+    document.querySelector('.trophy').textContent = G.mode === 'pvc' ? '🤖' : '🏆';
   } else {
     titleEl.textContent = '🤝 Ничья!';
     document.querySelector('.trophy').textContent = '🤝';
@@ -1031,10 +1178,12 @@ function endGame() {
 
   document.getElementById('ge-p1-rounds').textContent = G.matchScore.p1;
   document.getElementById('ge-p2-rounds').textContent = G.matchScore.p2;
+  const geP2Lbl = document.getElementById('ge-p2-label');
+  if (geP2Lbl) geP2Lbl.textContent = G.mode === 'pvc' ? 'Компьютер' : 'Игрок 2';
 
   const s1 = storeById(G.stores.p1), s2 = storeById(G.stores.p2);
   document.getElementById('ge-store-names').textContent =
-    `Игрок 1: ${s1.emoji} ${s1.name}  •  Игрок 2: ${s2.emoji} ${s2.name}`;
+    `Игрок 1: ${s1.emoji} ${s1.name}  •  ${G.mode==='pvc'?'🤖 Компьютер':'Игрок 2'}: ${s2.emoji} ${s2.name}`;
 
   showScreen('screen-game-end');
 }
