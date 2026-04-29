@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="10" fill="#0d0d0d"/>
+  <!-- Warning circle -->
+  <circle cx="60" cy="58" r="38" fill="#cc0000" stroke="#ff0000" stroke-width="2"/>
+  <circle cx="60" cy="58" r="34" fill="#dd0000"/>
+  <!-- 18 text -->
+  <text x="60" y="70" text-anchor="middle" font-family="Arial Black,Arial" font-size="34" font-weight="900" fill="white">18</text>
+  <!-- Minus sign / prohibition bar -->
+  <rect x="22" y="54" width="76" height="9" rx="4" fill="#ff0000" opacity="0.85" transform="rotate(-35,60,58)"/>
+  <!-- Outer ring -->
+  <circle cx="60" cy="58" r="38" fill="none" stroke="#ff4444" stroke-width="3"/>
+  <!-- Warning label -->
+  <rect x="14" y="96" width="92" height="16" rx="5" fill="#cc0000"/>
+  <text x="60" y="108" text-anchor="middle" font-family="Arial,sans-serif" font-size="8.5" font-weight="bold" fill="white">ПРОДАЖА ЗАПРЕЩЕНА</text>
+</svg>

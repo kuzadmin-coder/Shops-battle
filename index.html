@@ -95,6 +95,8 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 .card.is-special .card-power-badge{background:rgba(180,120,0,.9);color:#fff}
 .card.is-joker{border:3px solid #e040fb;box-shadow:0 0 12px rgba(224,64,251,.5),0 0 24px rgba(255,215,0,.3)}
 .card.is-joker .card-power-badge{background:linear-gradient(135deg,#e040fb,#ff6f00);color:#fff}
+.card.is-age{border:3px solid #ff1744;box-shadow:0 0 10px rgba(255,23,68,.45)}
+.card.is-age .card-power-badge{background:#c62828;color:#fff}
 .joker-crown{position:absolute;top:4px;left:6px;font-size:12px;line-height:1}
 
 /* ── Handoff ── */
@@ -415,6 +417,9 @@ const REGULAR_CARDS = [
   {id:'pasta',   name:'Макароны', power:4, emoji:'🍝'},
   {id:'oil',      name:'Масло',       power:5, emoji:'🫙'},
   {id:'vip_cheese',name:'VIP сырок Александров', power:7, emoji:'🧀'},
+  {id:'alcohol',   name:'Алкоголь',  power:6, emoji:'🍺'},
+  {id:'cigarettes',name:'Сигареты',  power:5, emoji:'🚬'},
+  {id:'age_restrict',name:'18-',     power:4, emoji:'🔞', effect:'AGE_RESTRICT'},
 ];
 
 // ════════════════════════════════════
@@ -753,12 +758,14 @@ function renderPlayScreen(player) {
   G.hands[player].forEach(card => {
     const div = document.createElement('div');
     const isJoker = card.id === 'vip_cheese';
-    div.className = 'card ' + (isJoker ? 'is-joker' : card.type === 'special' ? 'is-special' : '') + (card.used ? ' used' : '');
+    const isAge = card.id === 'age_restrict';
+    div.className = 'card ' + (isJoker ? 'is-joker' : isAge ? 'is-age' : card.type === 'special' ? 'is-special' : '') + (card.used ? ' used' : '');
     if (G.chosen[player] && G.chosen[player].uid === card.uid) div.classList.add('chosen');
 
     const imgSrc = cardImgSrc(card);
     let effectHtml = '';
     if (card.type === 'special') effectHtml = `<div class="card-special-tag">✨ ${card.desc}</div>`;
+    if (isAge) effectHtml = `<div class="card-special-tag">🔞 Алко/сиги = проигрыш!</div>`;
 
     div.innerHTML = `
       <img src="${imgSrc}" alt="${card.name}" style="width:100%;height:100%;object-fit:cover">
@@ -859,15 +866,27 @@ function resolveBattle() {
   const p2Effects = [];
 
   // Apply pending next boosts
-  if (G.nextBoost.p1 > 0) {
+  if (G.nextBoost.p1 !== 0) {
     p1Power += G.nextBoost.p1;
     p1Effects.push(`+${G.nextBoost.p1} бонус`);
     G.nextBoost.p1 = 0;
   }
-  if (G.nextBoost.p2 > 0) {
+  if (G.nextBoost.p2 !== 0) {
     p2Power += G.nextBoost.p2;
     p2Effects.push(`+${G.nextBoost.p2} бонус`);
     G.nextBoost.p2 = 0;
+  }
+
+  // STORE BONUS: Красное и Белое +1 к алкоголю и сигаретам
+  const p1Store = G.stores.p1;
+  const p2Store = G.stores.p2;
+  if (p1Store === 'krasnoe_beloe' && (c1.id === 'alcohol' || c1.id === 'cigarettes')) {
+    p1Power += 1;
+    p1Effects.push('+1 к алко/сигаретам (К&Б)');
+  }
+  if (p2Store === 'krasnoe_beloe' && (c2.id === 'alcohol' || c2.id === 'cigarettes')) {
+    p2Power += 1;
+    p2Effects.push('+1 к алко/сигаретам (К&Б)');
   }
 
   // GALYA_CANCEL: отменяет ВСЕ эффекты соперника, включая BLOCK
@@ -948,6 +967,23 @@ function resolveBattle() {
   if (p1IsJoker) p1Effects.push('🃏 ДЖОКЕР!');
   if (p2IsJoker) p2Effects.push('🃏 ДЖОКЕР!');
 
+  // AGE_RESTRICT — «18-»: если у соперника алкоголь/сигареты — соперник проигрывает дуэль и получает -3 к следующей
+  let ageWinner = null;
+  const c1IsAlcohol = (c1.id === 'alcohol' || c1.id === 'cigarettes');
+  const c2IsAlcohol = (c2.id === 'alcohol' || c2.id === 'cigarettes');
+  if (c1.effect === 'AGE_RESTRICT' && !p1EffectCanceled && c2IsAlcohol) {
+    ageWinner = 'p1';
+    G.nextBoost.p2 = (G.nextBoost.p2 || 0) - 3;
+    p1Effects.push('🔞 Продажа запрещена! Соперник проигрывает −3 к следующей');
+    p2Effects.push('🔞 Нет 18+ — дуэль проиграна! −3 к следующей карте');
+  }
+  if (c2.effect === 'AGE_RESTRICT' && !p2EffectCanceled && c1IsAlcohol) {
+    ageWinner = 'p2';
+    G.nextBoost.p1 = (G.nextBoost.p1 || 0) - 3;
+    p2Effects.push('🔞 Продажа запрещена! Соперник проигрывает −3 к следующей');
+    p1Effects.push('🔞 Нет 18+ — дуэль проиграна! −3 к следующей карте');
+  }
+
   // Determine winner
   let winner;
   if (p1IsJoker && p2IsJoker) {
@@ -958,6 +994,8 @@ function resolveBattle() {
     winner = 'p2';
   } else if (eggsWinner) {
     winner = eggsWinner; // EGGS_SPECIAL overrides everything
+  } else if (ageWinner) {
+    winner = ageWinner; // AGE_RESTRICT overrides power
   } else if (p1Power > p2Power) {
     winner = 'p1';
   } else if (p2Power > p1Power) {
