@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#fff9e6" rx="20"/>
+  <rect x="8" y="8" width="184" height="184" fill="none" stroke="#e53935" stroke-width="4" rx="16"/>
+  <rect x="20" y="65" width="160" height="75" fill="#e53935" rx="10"/>
+  <rect x="20" y="115" width="160" height="25" fill="#fdd835" rx="0"/>
+  <text x="100" y="45" font-family="Segoe UI,Arial" font-size="38" text-anchor="middle">🟡</text>
+  <text x="100" y="108" font-family="Segoe UI,Arial" font-size="16" fill="white" text-anchor="middle" font-weight="900">ЛЕНТА</text>
+  <text x="100" y="133" font-family="Segoe UI,Arial" font-size="10" fill="#333" text-anchor="middle" font-weight="700">ГИПЕРМАРКЕТ</text>
+  <text x="100" y="170" font-family="Segoe UI,Arial" font-size="10" fill="#e53935" text-anchor="middle">[ логотип сети ]</text>
+</svg>

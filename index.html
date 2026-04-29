@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ Битва Магазинов</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#0d1117 100%);min-height:100vh;color:#fff;overflow-x:hidden}
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fadeIn .4s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px gold}50%{box-shadow:0 0 50px gold,0 0 80px rgba(255,215,0,.4)}}
+@keyframes slideLeft{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideRight{from{transform:translateX(-60px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* ── Buttons ── */
+.btn{padding:14px 36px;border:none;border-radius:50px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.btn:hover{transform:scale(1.06);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:linear-gradient(135deg,#f6c90e,#e8a000);color:#1a1a1a}
+.btn-outline{background:rgba(255,255,255,.07);color:#fff;border:2px solid rgba(255,255,255,.25)}
+.btn-outline:hover{background:rgba(255,255,255,.15)}
+.btn-p1{background:linear-gradient(135deg,#ff6b6b,#ee0979);color:#fff}
+.btn-p2{background:linear-gradient(135deg,#4ecdc4,#00b4d8);color:#fff}
+.btn-red{background:linear-gradient(135deg,#ff4444,#c62828);color:#fff}
+
+/* ── Title ── */
+#screen-title{text-align:center}
+.title-logo{font-size:90px;margin-bottom:12px;filter:drop-shadow(0 0 30px rgba(255,180,0,.6))}
+.title-main{font-size:52px;font-weight:900;background:linear-gradient(90deg,#ffd700,#ff6b6b,#ffd700);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s infinite}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+.title-sub{font-size:17px;color:#888;margin:10px 0 40px}
+.title-rules{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 30px;max-width:480px;text-align:left;font-size:14px;color:#aaa;margin-bottom:32px;line-height:1.8}
+.title-rules li{margin-left:20px}
+
+/* ── Store Select ── */
+.section-title{font-size:26px;font-weight:800;margin-bottom:6px;text-align:center}
+.section-sub{font-size:14px;color:#888;margin-bottom:24px;text-align:center}
+.store-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:660px;width:100%}
+.store-card{background:rgba(255,255,255,.05);border:3px solid rgba(255,255,255,.1);border-radius:18px;padding:16px 12px;text-align:center;cursor:pointer;transition:all .22s;position:relative}
+.store-card:hover:not(.disabled){background:rgba(255,255,255,.12);transform:translateY(-5px);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.store-card.selected{border-color:gold;background:rgba(255,215,0,.12);box-shadow:0 0 20px rgba(255,215,0,.3)}
+.store-card.disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+.store-card.taken{opacity:.3;cursor:not-allowed}
+.store-img{width:72px;height:72px;object-fit:contain;border-radius:10px;margin-bottom:8px}
+.store-name{font-size:13px;font-weight:700;line-height:1.3}
+.store-tag{font-size:11px;color:#888;margin-top:3px}
+.taken-badge{position:absolute;top:8px;right:8px;background:#ff4444;color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:2px 7px}
+
+/* ── Round Intro ── */
+#screen-round-intro{text-align:center}
+.round-badge{font-size:16px;font-weight:700;background:rgba(255,215,0,.15);border:2px solid gold;border-radius:50px;padding:8px 24px;margin-bottom:30px;color:gold}
+.matchup{display:flex;align-items:center;gap:30px;margin:20px 0 30px}
+.matchup-store{text-align:center}
+.matchup-store img{width:110px;height:110px;border-radius:18px;object-fit:contain;border:3px solid rgba(255,255,255,.2)}
+.matchup-vs{font-size:50px;font-weight:900;color:#ffd700;text-shadow:0 0 30px rgba(255,215,0,.5)}
+.intro-hint{font-size:13px;color:#777;max-width:420px;text-align:center;margin-bottom:30px}
+
+/* ── Battle Top Bar ── */
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:860px;padding:10px 20px;background:rgba(255,255,255,.05);border-radius:50px;margin-bottom:20px;font-size:13px}
+.topbar-rounds{display:flex;gap:8px;align-items:center}
+.rdot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);transition:all .3s}
+.rdot.p1w{background:#ff6b6b;border-color:#ff6b6b}
+.rdot.p2w{background:#4ecdc4;border-color:#4ecdc4}
+.topbar-score{text-align:center}
+.duel-score{font-size:28px;font-weight:900}
+.duel-label{font-size:11px;color:#888}
+
+/* ── Play Screen ── */
+#screen-play{width:100%;max-width:900px}
+.player-banner{width:100%;text-align:center;padding:14px;border-radius:16px;margin-bottom:18px;font-size:20px;font-weight:800}
+.p1-banner{background:linear-gradient(135deg,rgba(238,9,121,.2),rgba(255,107,107,.15));border:2px solid rgba(255,107,107,.4)}
+.p2-banner{background:linear-gradient(135deg,rgba(0,180,216,.15),rgba(78,205,196,.2));border:2px solid rgba(78,205,196,.4)}
+.hand-label{font-size:13px;color:#888;text-align:center;margin-bottom:12px}
+.hand{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:860px}
+.card{width:105px;height:145px;border-radius:14px;overflow:hidden;cursor:pointer;transition:all .22s;position:relative;flex-shrink:0}
+.card:hover:not(.used){transform:translateY(-14px);box-shadow:0 20px 40px rgba(0,0,0,.6)}
+.card.used{opacity:.35;cursor:default;filter:grayscale(.5)}
+.card.chosen{transform:translateY(-18px);box-shadow:0 0 0 3px #00ff88,0 20px 40px rgba(0,255,136,.3)}
+.card img{width:100%;height:100%;object-fit:cover}
+.card-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:6px;background:linear-gradient(to top,rgba(0,0,0,.85) 50%,transparent)}
+.card-name{font-size:11px;font-weight:700;line-height:1.2;color:#fff}
+.card-power-badge{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);color:#ffd700;font-weight:900;font-size:13px;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.card-special-tag{font-size:9px;color:gold;margin-top:2px}
+.card.is-special{border:3px solid gold}
+.card.is-special .card-power-badge{background:rgba(180,120,0,.9);color:#fff}
+
+/* ── Handoff ── */
+#screen-handoff{text-align:center}
+.handoff-icon{font-size:80px;margin-bottom:20px}
+.handoff-title{font-size:32px;font-weight:900;margin-bottom:10px}
+.handoff-sub{font-size:15px;color:#888;margin-bottom:40px}
+
+/* ── Battle Result ── */
+#screen-battle{text-align:center}
+.battle-arena{display:flex;align-items:center;gap:28px;margin:20px 0}
+.arena-card{display:flex;flex-direction:column;align-items:center;gap:10px;animation:slideLeft .4s ease}
+.arena-card.right{animation-name:slideRight}
+.arena-card-img{width:140px;height:190px;border-radius:16px;overflow:hidden;position:relative}
+.arena-card-img img{width:100%;height:100%;object-fit:cover}
+.arena-card-name{font-size:14px;font-weight:700}
+.arena-power{font-size:40px;font-weight:900;color:#ffd700}
+.arena-effect{font-size:12px;color:#aaa;max-width:140px;line-height:1.4}
+.battle-vs{font-size:52px;font-weight:900;color:#ffd700;text-shadow:0 0 40px rgba(255,215,0,.5)}
+.battle-result-banner{font-size:28px;font-weight:900;padding:14px 32px;border-radius:50px;margin:10px 0 20px}
+.result-p1win{background:linear-gradient(135deg,rgba(238,9,121,.3),rgba(255,107,107,.2));border:2px solid #ff6b6b;color:#ff9999}
+.result-p2win{background:linear-gradient(135deg,rgba(0,180,216,.2),rgba(78,205,196,.3));border:2px solid #4ecdc4;color:#7ff;animation:pulse .5s ease}
+.result-tie{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);color:#ccc}
+.result-p1win{animation:pulse .5s ease}
+.arena-player-label{font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px}
+.lbl-p1{background:rgba(255,107,107,.2);color:#ff9999}
+.lbl-p2{background:rgba(78,205,196,.2);color:#7ff}
+.effect-applied{font-size:11px;color:#ffd700;margin-top:4px;background:rgba(255,215,0,.1);padding:3px 10px;border-radius:12px}
+
+/* ── Round End ── */
+#screen-round-end{text-align:center}
+.round-winner-badge{font-size:60px;margin-bottom:10px}
+.round-winner-title{font-size:34px;font-weight:900;margin-bottom:8px}
+.history-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:500px;margin:20px auto}
+.hist-item{background:rgba(255,255,255,.05);border-radius:10px;padding:8px 4px;text-align:center;font-size:11px}
+.hist-item.hw-p1{background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.3)}
+.hist-item.hw-p2{background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3)}
+.hist-item.hw-tie{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15)}
+.hist-turn{font-size:10px;color:#777;margin-bottom:3px}
+.hist-result{font-size:15px;font-weight:900}
+.change-store-box{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.15);border-radius:16px;padding:20px;max-width:440px;margin:20px auto;text-align:left}
+.change-store-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.change-store-sub{font-size:13px;color:#888;margin-bottom:14px}
+
+/* ── Game End ── */
+#screen-game-end{text-align:center}
+.trophy{font-size:100px;margin-bottom:10px;animation:pulse 1s infinite}
+.winner-title{font-size:44px;font-weight:900;margin-bottom:6px;background:linear-gradient(90deg,#ffd700,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.final-scores{display:flex;gap:30px;margin:30px 0;justify-content:center}
+.score-box{background:rgba(255,255,255,.07);border-radius:18px;padding:22px 36px;text-align:center}
+.score-box-num{font-size:52px;font-weight:900}
+.score-box-label{font-size:13px;color:#888;margin-top:4px}
+.score-p1{border:2px solid rgba(255,107,107,.4)}
+.score-p2{border:2px solid rgba(78,205,196,.4)}
+.score-p1 .score-box-num{color:#ff9999}
+.score-p2 .score-box-num{color:#7ff}
+
+/* ── Misc ── */
+.divider{width:100%;max-width:500px;height:1px;background:rgba(255,255,255,.08);margin:16px 0}
+.alert{background:rgba(255,200,0,.12);border:1px solid rgba(255,200,0,.3);border-radius:10px;padding:10px 18px;font-size:13px;color:#ffd700;margin:10px 0;text-align:center}
+.next-boost-hint{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);border-radius:10px;padding:8px 16px;font-size:13px;color:#00ff88;margin-bottom:12px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ TITLE ═══════════ -->
+<div id="screen-title" class="screen active">
+  <div class="title-logo">🛒</div>
+  <div class="title-main">Битва Магазинов</div>
+  <div class="title-sub">Карточная игра для двух игроков</div>
+  <ul class="title-rules">
+    <li>3 раунда, в каждом по 10 дуэлей</li>
+    <li>10 карт на руке: 3 особые + 7 случайных</li>
+    <li>Одну сеть не могут взять оба игрока</li>
+    <li>Проигравший раунд может сменить сеть</li>
+    <li>Победитель — кто выиграет 2 раунда из 3</li>
+  </ul>
+  <button class="btn btn-gold" onclick="startGame()">⚔️ Начать игру</button>
+</div>
+
+<!-- ═══════════ STORE SELECT ═══════════ -->
+<div id="screen-store-select" class="screen">
+  <div class="section-title" id="ss-title">Выбор магазинов</div>
+  <div class="section-sub" id="ss-sub"></div>
+  <div class="store-grid" id="store-grid"></div>
+  <div id="ss-selected-box" style="margin-top:18px;text-align:center;min-height:50px"></div>
+  <button class="btn btn-gold" id="ss-confirm-btn" style="margin-top:16px;display:none" onclick="confirmStoreSelect()">Подтвердить выбор →</button>
+</div>
+
+<!-- ═══════════ ROUND INTRO ═══════════ -->
+<div id="screen-round-intro" class="screen">
+  <div class="round-badge" id="ri-badge">Раунд 1</div>
+  <div style="font-size:24px;font-weight:800;margin-bottom:6px" id="ri-title">Битва начинается!</div>
+  <div class="matchup">
+    <div class="matchup-store">
+      <img id="ri-p1-img" src="" alt="">
+      <div style="margin-top:8px;font-weight:700" id="ri-p1-name"></div>
+      <div style="font-size:12px;color:#ff9999">Игрок 1</div>
+    </div>
+    <div class="matchup-vs">VS</div>
+    <div class="matchup-store">
+      <img id="ri-p2-img" src="" alt="">
+      <div style="margin-top:8px;font-weight:700" id="ri-p2-name"></div>
+      <div style="font-size:12px;color:#7ff">Игрок 2</div>
+    </div>
+  </div>
+  <div class="intro-hint" id="ri-hint">По 10 карт каждому: 3 особые + 7 обычных.<br>Играйте по очереди. Передавайте устройство!</div>
+  <button class="btn btn-gold" onclick="startRound()">🃏 Раздать карты</button>
+</div>
+
+<!-- ═══════════ PLAY SCREEN ═══════════ -->
+<div id="screen-play" class="screen">
+  <div class="topbar">
+    <div>
+      <div style="font-size:11px;color:#888">Раунды</div>
+      <div class="topbar-rounds" id="tb-rounds"></div>
+    </div>
+    <div class="topbar-score">
+      <div class="duel-score"><span id="tb-p1-duels" style="color:#ff9999">0</span> : <span id="tb-p2-duels" style="color:#7ff">0</span></div>
+      <div class="duel-label">Дуэли (Ход <span id="tb-turn">1</span>/10)</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#888">Ход</div>
+      <div style="font-size:18px;font-weight:900" id="tb-turn-big">1</div>
+    </div>
+  </div>
+  <div id="play-next-boost" class="next-boost-hint" style="display:none"></div>
+  <div class="player-banner" id="play-banner"></div>
+  <div class="hand-label" id="play-hand-label">Выберите карту для этого хода</div>
+  <div class="hand" id="play-hand"></div>
+  <div style="margin-top:20px" id="play-confirm-area"></div>
+</div>
+
+<!-- ═══════════ HANDOFF ═══════════ -->
+<div id="screen-handoff" class="screen">
+  <div class="handoff-icon">🔄</div>
+  <div class="handoff-title" id="ho-title">Передайте устройство!</div>
+  <div class="handoff-sub" id="ho-sub">Игрок 1 сделал выбор.<br>Передайте устройство Игроку 2.</div>
+  <button class="btn btn-p2" onclick="goToP2Turn()">✅ Я готов, Игрок 2</button>
+</div>
+
+<!-- ═══════════ BATTLE RESULT ═══════════ -->
+<div id="screen-battle" class="screen">
+  <div class="topbar" style="max-width:860px">
+    <div>
+      <div style="font-size:11px;color:#888">Ход <span id="bt-turn">1</span>/10</div>
+      <div class="topbar-rounds" id="bt-rounds"></div>
+    </div>
+    <div class="topbar-score">
+      <div class="duel-score"><span id="bt-p1-duels" style="color:#ff9999">0</span> : <span id="bt-p2-duels" style="color:#7ff">0</span></div>
+      <div class="duel-label">Дуэли</div>
+    </div>
+    <div style="text-align:right;font-size:12px;color:#888" id="bt-store-names"></div>
+  </div>
+  <div class="battle-result-banner" id="bt-result-banner">⚔️</div>
+  <div class="battle-arena">
+    <div class="arena-card" id="arena-p1">
+      <div style="font-size:12px;color:#ff9999;margin-bottom:4px">⚔️ Игрок 1</div>
+      <div class="arena-card-img" id="arena-p1-img"></div>
+      <div class="arena-card-name" id="arena-p1-name"></div>
+      <div class="arena-power" id="arena-p1-pow"></div>
+      <div class="arena-effect" id="arena-p1-eff"></div>
+    </div>
+    <div class="battle-vs">VS</div>
+    <div class="arena-card right" id="arena-p2">
+      <div style="font-size:12px;color:#7ff;margin-bottom:4px">🛡 Игрок 2</div>
+      <div class="arena-card-img" id="arena-p2-img"></div>
+      <div class="arena-card-name" id="arena-p2-name"></div>
+      <div class="arena-power" id="arena-p2-pow"></div>
+      <div class="arena-effect" id="arena-p2-eff"></div>
+    </div>
+  </div>
+  <button class="btn btn-gold" id="bt-next-btn" onclick="afterBattle()">Следующий ход →</button>
+</div>
+
+<!-- ═══════════ ROUND END ═══════════ -->
+<div id="screen-round-end" class="screen">
+  <div class="round-winner-badge" id="re-badge">🏆</div>
+  <div class="round-winner-title" id="re-title"></div>
+  <div style="font-size:14px;color:#888;margin-bottom:8px" id="re-score-line"></div>
+  <div class="history-grid" id="re-history"></div>
+  <div id="re-change-box"></div>
+  <div style="margin-top:24px" id="re-next-area"></div>
+</div>
+
+<!-- ═══════════ GAME END ═══════════ -->
+<div id="screen-game-end" class="screen">
+  <div class="trophy">🏆</div>
+  <div class="winner-title" id="ge-title"></div>
+  <div style="font-size:16px;color:#888;margin-bottom:10px" id="ge-sub"></div>
+  <div class="final-scores">
+    <div class="score-box score-p1">
+      <div class="score-box-num" id="ge-p1-rounds">0</div>
+      <div class="score-box-label">Раунды<br>Игрок 1</div>
+    </div>
+    <div class="score-box score-p2">
+      <div class="score-box-num" id="ge-p2-rounds">0</div>
+      <div class="score-box-label">Раунды<br>Игрок 2</div>
+    </div>
+  </div>
+  <div style="font-size:13px;color:#666;margin-bottom:30px" id="ge-store-names"></div>
+  <button class="btn btn-gold" onclick="location.reload()">🔄 Играть снова</button>
+</div>
+
+<script>
+// ════════════════════════════════════
+//  GAME DATA
+// ════════════════════════════════════
+
+const STORES = [
+  { id:'perekrestok',   name:'Перекресток',     tag:'Свежесть и качество',   emoji:'🏪', color:'#c62828',
+    special:[
+      {name:'Клубная карта',        power:8,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💳'},
+      {name:'Свежая доставка',      power:7,  effect:'NEXT_BOOST',  desc:'Следующая карта +3 к силе',         emoji:'🚚', boostAmt:3},
+      {name:'Гастрономический зал', power:9,  effect:'BLOCK',       desc:'Отменяет эффект карты соперника',   emoji:'🏪'},
+    ]
+  },
+  { id:'pyaterochka',   name:'Пятёрочка',        tag:'Выгода каждый день',    emoji:'⭐', color:'#e65100',
+    special:[
+      {name:'Жёлтый ценник',        power:5,  effect:'DOUBLE',      desc:'Удваивает силу этой карты ×2',      emoji:'🏷️'},
+      {name:'Акция дня',            power:7,  effect:'DEBUFF',      desc:'Карта соперника −2 к силе',         emoji:'⚡', debuffAmt:2},
+      {name:'Много магазинов',       power:8,  effect:'NEXT_BOOST',  desc:'Следующая карта +2 к силе',         emoji:'🗺️', boostAmt:2},
+      {name:'Галя, отмена!',        power:7,  effect:'GALYA_CANCEL',desc:'Отменяет ВСЕ эффекты соперника, даже блок!', emoji:'📣'},
+      {name:'Тёмное прошлое Пятачка',       power:9,  effect:'POWER_BOOST', desc:'Скрытая сила свиньи: +3 к силе',   emoji:'🐷', boostAmt:3},
+    ]
+  },
+  { id:'chizhik',       name:'Чижик',            tag:'Дешевле некуда!',       emoji:'🐦', color:'#1565c0',
+    special:[
+      {name:'Ультра-бюджет',        power:9,  effect:'BLOCK',       desc:'Отменяет эффект карты соперника',   emoji:'💙'},
+      {name:'Свой бренд',           power:7,  effect:'POWER_BOOST', desc:'Эта карта +4 к силе',               emoji:'🐦', boostAmt:4},
+      {name:'Дискаунтер',           power:6,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💸'},
+    ]
+  },
+  { id:'krasnoe_beloe', name:'Красное и Белое',  tag:'Широкий выбор',         emoji:'🍷', color:'#880e4f',
+    special:[
+      {name:'Алко-акция',           power:8,  effect:'DEBUFF',      desc:'Карта соперника −2 к силе',         emoji:'🍷', debuffAmt:2},
+      {name:'КиБ-карта',            power:7,  effect:'NEXT_BOOST',  desc:'Следующая карта +3 к силе',         emoji:'💳', boostAmt:3},
+      {name:'Импорт',               power:10, effect:'BLOCK',       desc:'Отменяет все эффекты этого хода',   emoji:'🌍'},
+      {name:'Палёнка',              power:6,  effect:'DEBUFF',      desc:'Контрафакт! Карта соперника −4 к силе', emoji:'🥃', debuffAmt:4},
+      {name:'Призвать алкаша!',     power:7,  effect:'DEBUFF',      desc:'Алкаш дебоширит! −3 к силе карты соперника', emoji:'🍺', debuffAmt:3},
+    ]
+  },
+  { id:'diksi',         name:'Дикси',            tag:'Рядом с домом',         emoji:'🏬', color:'#2e7d32',
+    special:[
+      {name:'Местные товары',       power:7,  effect:'POWER_BOOST', desc:'Эта карта +3 к силе',               emoji:'🌿', boostAmt:3},
+      {name:'Соседний магазин',     power:6,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'🏠'},
+      {name:'Акция недели',         power:8,  effect:'DEBUFF',      desc:'Карта соперника −2 к силе',         emoji:'📅', debuffAmt:2},
+    ]
+  },
+  { id:'verniy',        name:'Верный',           tag:'Проверенное качество',  emoji:'✅', color:'#283593',
+    special:[
+      {name:'Верная цена',          power:7,  effect:'BLOCK',       desc:'Отменяет эффект карты соперника',   emoji:'✅'},
+      {name:'Бонус баллы',          power:8,  effect:'NEXT_BOOST',  desc:'Следующая карта +2 к силе',         emoji:'🎁', boostAmt:2},
+      {name:'Стабильность',         power:9,  effect:'POWER_BOOST', desc:'Эта карта +3 к силе',               emoji:'🛡', boostAmt:3},
+      {name:'Слава яйцам!',         power:6,  effect:'EGGS_SPECIAL',desc:'Если у соперника яйца — победа! И следующая +2', emoji:'🥚'},
+    ]
+  },
+  { id:'azbuka_vkusa',  name:'Азбука Вкуса',     tag:'Премиум качество',      emoji:'🍽', color:'#3a3a3a',
+    special:[
+      {name:'Гурман-клуб',          power:9,  effect:'NEXT_BOOST',  desc:'Следующая карта +3 к силе',         emoji:'🍽', boostAmt:3},
+      {name:'Эксклюзив',            power:10, effect:'POWER_BOOST', desc:'Эта карта +4 к силе',               emoji:'💎', boostAmt:4},
+      {name:'Дегустация',           power:8,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'🥂'},
+      {name:'Шокирующая цена',      power:5,  effect:'POWER_BOOST', desc:'Цена как удар: +6 к силе карты',    emoji:'😱', boostAmt:6},
+    ]
+  },
+  { id:'vkusvill',      name:'ВкусВилл',         tag:'Здоровое питание',      emoji:'🥗', color:'#33691e',
+    special:[
+      {name:'Без консервантов',     power:7,  effect:'BLOCK',       desc:'Отменяет эффект карты соперника',   emoji:'🌱'},
+      {name:'Фермерское',           power:8,  effect:'POWER_BOOST', desc:'Эта карта +3 к силе',               emoji:'🚜', boostAmt:3},
+      {name:'Зелёный выбор',        power:5,  effect:'DOUBLE',      desc:'Удваивает силу этой карты ×2',      emoji:'♻️'},
+      {name:'Готовая еда с ботулизмом', power:3, effect:'DEBUFF',  desc:'☠️ Ботулизм! Карта соперника −5 к силе', emoji:'☠️', debuffAmt:5},
+    ]
+  },
+  { id:'magnit',        name:'Магнит',           tag:'Федеральная сеть',      emoji:'🧲', color:'#b71c1c',
+    special:[
+      {name:'Федеральная сеть',     power:8,  effect:'NEXT_BOOST',  desc:'Следующая карта +3 к силе',         emoji:'🧲', boostAmt:3},
+      {name:'Магнит-акция',         power:7,  effect:'DEBUFF',      desc:'Карта соперника −2 к силе',         emoji:'📢', debuffAmt:2},
+      {name:'Кешбэк',               power:9,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💰'},
+      {name:'Призвать Краснодар',   power:8,  effect:'POWER_BOOST', desc:'Армия Краснодара! +5 к силе',       emoji:'🏙️', boostAmt:5},
+    ]
+  },
+  { id:'lenta',         name:'Лента',            tag:'Гипермаркет для всей семьи', emoji:'🟡', color:'#e53935',
+    special:[
+      {name:'Левые ценники',        power:6,  effect:'DEBUFF',      desc:'Ценники врут! Карта соперника −3 к силе', emoji:'🏷️', debuffAmt:3},
+      {name:'Гипермаркет',          power:8,  effect:'NEXT_BOOST',  desc:'Огромный выбор: следующая карта +2', emoji:'🏬', boostAmt:2},
+      {name:'Скидочная карта',      power:7,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💳'},
+    ]
+  },
+];
+
+const REGULAR_CARDS = [
+  {id:'milk',    name:'Молоко',    power:5, emoji:'🥛'},
+  {id:'bread',   name:'Хлеб',     power:4, emoji:'🍞'},
+  {id:'meat',    name:'Мясо',     power:7, emoji:'🥩'},
+  {id:'veggies', name:'Овощи',    power:5, emoji:'🥦'},
+  {id:'fruits',  name:'Фрукты',   power:6, emoji:'🍎'},
+  {id:'drinks',  name:'Напитки',  power:5, emoji:'🧃'},
+  {id:'frozen',  name:'Заморозка',power:4, emoji:'❄️'},
+  {id:'snacks',  name:'Снеки',    power:5, emoji:'🍪'},
+  {id:'dairy',   name:'Молочка',  power:6, emoji:'🧀'},
+  {id:'bakery',  name:'Выпечка',  power:5, emoji:'🥐'},
+  {id:'coffee',  name:'Кофе',     power:6, emoji:'☕'},
+  {id:'fish',    name:'Рыба',     power:7, emoji:'🐟'},
+  {id:'eggs',    name:'Яйца',     power:4, emoji:'🥚'},
+  {id:'pasta',   name:'Макароны', power:4, emoji:'🍝'},
+  {id:'oil',     name:'Масло',    power:5, emoji:'🫙'},
+];
+
+// ════════════════════════════════════
+//  GAME STATE
+// ════════════════════════════════════
+
+const G = {
+  round: 1,
+  turn: 0,
+  matchScore: {p1:0, p2:0},
+  roundDuels: {p1:0, p2:0},
+  stores: {p1:null, p2:null},
+  hands: {p1:[], p2:[]},
+  chosen: {p1:null, p2:null},
+  nextBoost: {p1:0, p2:0},
+  history: [],     // current round history
+  allHistory: [],  // all rounds
+  ssPhase: null,   // 'both' | 'p1only' | 'p2only'
+  ssP1Picked: null,
+  ssP2Picked: null,
+  ssLoser: null,
+};
+
+// ════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function storeById(id) { return STORES.find(s => s.id === id); }
+
+function storeImgSrc(id) { return `images/stores/${id}.svg`; }
+
+function cardImgSrc(card) {
+  if (card.type === 'special') return `images/cards/special/${card.storeId}_s${card.specialIdx}.svg`;
+  return `images/cards/regular/${card.id}.svg`;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function dealCards(storeId) {
+  const store = storeById(storeId);
+  // Pick exactly 3 special cards (randomly if store has more than 3)
+  const allSpecials = store.special.map((sc, i) => ({
+    ...sc, type:'special', storeId, specialIdx: i+1,
+    uid: `${storeId}_sp${i}_r${G.round}`
+  }));
+  const specials = shuffle(allSpecials).slice(0, 3);
+  const regs = shuffle(REGULAR_CARDS).slice(0, 7).map((rc, i) => ({
+    ...rc, type:'regular', uid:`reg_${rc.id}_${i}_r${G.round}`
+  }));
+  return [...specials, ...regs];
+}
+
+function renderRoundDots(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  let html = '';
+  for (let i = 1; i <= 3; i++) {
+    let cls = '';
+    if (i === G.round) cls = 'rdot' + (i === G.round ? ' current' : '');
+    else if (i < G.round) {
+      const rh = G.allHistory[i-1];
+      if (rh) cls = rh.winner === 'p1' ? 'rdot p1w' : rh.winner === 'p2' ? 'rdot p2w' : 'rdot';
+      else cls = 'rdot';
+    } else cls = 'rdot';
+    html += `<div class="${cls}" style="${i===G.round?'border-color:gold':''}" title="Раунд ${i}"></div>`;
+  }
+  el.innerHTML = html;
+}
+
+function updateTopBar() {
+  document.getElementById('tb-p1-duels').textContent = G.roundDuels.p1;
+  document.getElementById('tb-p2-duels').textContent = G.roundDuels.p2;
+  document.getElementById('tb-turn').textContent = G.turn + 1;
+  document.getElementById('tb-turn-big').textContent = G.turn + 1;
+  renderRoundDots('tb-rounds');
+}
+
+// ════════════════════════════════════
+//  STORE SELECT
+// ════════════════════════════════════
+
+function startGame() {
+  G.ssPhase = 'both';
+  G.ssP1Picked = null;
+  G.ssP2Picked = null;
+  G.ssStep = 'p1'; // first P1 picks
+  renderStoreSelect();
+  showScreen('screen-store-select');
+}
+
+function renderStoreSelect() {
+  const takenId = G.ssPhase === 'p1only' ? G.stores.p2
+                : G.ssPhase === 'p2only' ? G.stores.p1
+                : (G.ssPhase === 'both' && G.ssStep === 'p2') ? G.ssP1Picked
+                : null;
+  const pickingFor = G.ssPhase === 'p1only' ? 'p1'
+                   : G.ssPhase === 'p2only' ? 'p2'
+                   : G.ssStep;
+
+  const titleEl = document.getElementById('ss-title');
+  const subEl   = document.getElementById('ss-sub');
+  const confirmBtn = document.getElementById('ss-confirm-btn');
+
+  if (G.ssPhase === 'both' && G.ssStep === 'p1') {
+    titleEl.textContent = '🏪 Игрок 1: выберите сеть магазинов';
+    subEl.textContent = 'Ваш соперник не увидит ваш выбор сейчас';
+  } else if (G.ssPhase === 'both' && G.ssStep === 'p2') {
+    titleEl.textContent = '🏪 Игрок 2: выберите сеть магазинов';
+    subEl.textContent = `Игрок 1 выбрал: ${storeById(G.ssP1Picked).name} — эта сеть недоступна`;
+  } else if (G.ssPhase === 'p1only') {
+    titleEl.textContent = '🔄 Игрок 1: смените сеть магазинов';
+    subEl.textContent = `Вы можете выбрать другую сеть (кроме ${storeById(G.stores.p2).name})`;
+  } else if (G.ssPhase === 'p2only') {
+    titleEl.textContent = '🔄 Игрок 2: смените сеть магазинов';
+    subEl.textContent = `Вы можете выбрать другую сеть (кроме ${storeById(G.stores.p1).name})`;
+  }
+
+  const grid = document.getElementById('store-grid');
+  grid.innerHTML = '';
+
+  STORES.forEach(store => {
+    const div = document.createElement('div');
+    div.className = 'store-card';
+    const isTaken = store.id === takenId;
+    if (isTaken) { div.classList.add('taken'); }
+
+    // current selection highlight
+    const curPick = G.ssPhase === 'both'
+      ? (pickingFor === 'p1' ? G.ssP1Picked : G.ssP2Picked)
+      : (G.ssPhase === 'p1only' ? G.ssP1Picked : G.ssP2Picked);
+    if (store.id === curPick) div.classList.add('selected');
+
+    div.innerHTML = `
+      ${isTaken ? '<span class="taken-badge">Занято</span>' : ''}
+      <img class="store-img" src="${storeImgSrc(store.id)}" alt="${store.name}">
+      <div class="store-name">${store.emoji} ${store.name}</div>
+      <div class="store-tag">${store.tag}</div>
+    `;
+    if (!isTaken) {
+      div.onclick = () => pickStore(store.id);
+    }
+    grid.appendChild(div);
+  });
+
+  confirmBtn.style.display = 'none';
+  document.getElementById('ss-selected-box').innerHTML = '';
+  const curPick2 = G.ssPhase === 'both'
+    ? (pickingFor === 'p1' ? G.ssP1Picked : G.ssP2Picked)
+    : (G.ssPhase === 'p1only' ? G.ssP1Picked : G.ssP2Picked);
+  if (curPick2) {
+    const s = storeById(curPick2);
+    document.getElementById('ss-selected-box').innerHTML = `<span style="color:#ffd700;font-weight:700">✓ Выбрано: ${s.name}</span>`;
+    confirmBtn.style.display = 'inline-block';
+  }
+}
+
+function pickStore(storeId) {
+  const pickingFor = G.ssPhase === 'both' ? G.ssStep
+                   : G.ssPhase === 'p1only' ? 'p1' : 'p2';
+  if (pickingFor === 'p1') G.ssP1Picked = storeId;
+  else G.ssP2Picked = storeId;
+
+  renderStoreSelect();
+}
+
+function confirmStoreSelect() {
+  if (G.ssPhase === 'both' && G.ssStep === 'p1') {
+    // Move to P2 picking
+    G.ssStep = 'p2';
+    G.ssP2Picked = null;
+    renderStoreSelect();
+    return;
+  }
+
+  // Finalize
+  if (G.ssPhase === 'both') {
+    G.stores.p1 = G.ssP1Picked;
+    G.stores.p2 = G.ssP2Picked;
+  } else if (G.ssPhase === 'p1only') {
+    G.stores.p1 = G.ssP1Picked || G.stores.p1;
+  } else if (G.ssPhase === 'p2only') {
+    G.stores.p2 = G.ssP2Picked || G.stores.p2;
+  }
+
+  showRoundIntro();
+}
+
+// ════════════════════════════════════
+//  ROUND INTRO
+// ════════════════════════════════════
+
+function showRoundIntro() {
+  const s1 = storeById(G.stores.p1);
+  const s2 = storeById(G.stores.p2);
+  document.getElementById('ri-badge').textContent = `⚔️ Раунд ${G.round} из 3`;
+  document.getElementById('ri-title').textContent =
+    G.round === 1 ? 'Битва начинается!' : G.round === 2 ? 'Второй раунд!' : 'Финальный раунд!';
+  document.getElementById('ri-p1-img').src  = storeImgSrc(G.stores.p1);
+  document.getElementById('ri-p1-name').textContent = s1.name;
+  document.getElementById('ri-p2-img').src  = storeImgSrc(G.stores.p2);
+  document.getElementById('ri-p2-name').textContent = s2.name;
+  showScreen('screen-round-intro');
+}
+
+function startRound() {
+  G.turn = 0;
+  G.roundDuels = {p1:0, p2:0};
+  G.nextBoost = {p1:0, p2:0};
+  G.history = [];
+  G.hands.p1 = dealCards(G.stores.p1);
+  G.hands.p2 = dealCards(G.stores.p2);
+  G.chosen = {p1:null, p2:null};
+  showP1Turn();
+}
+
+// ════════════════════════════════════
+//  PLAY TURN
+// ════════════════════════════════════
+
+function showP1Turn() {
+  renderPlayScreen('p1');
+  showScreen('screen-play');
+}
+
+function showP2Turn() {
+  renderPlayScreen('p2');
+  showScreen('screen-play');
+}
+
+function goToP2Turn() {
+  showP2Turn();
+}
+
+function renderPlayScreen(player) {
+  const isP1 = player === 'p1';
+  const banner = document.getElementById('play-banner');
+  banner.className = 'player-banner ' + (isP1 ? 'p1-banner' : 'p2-banner');
+  const store = storeById(G.stores[player]);
+  banner.innerHTML = `${isP1 ? '⚔️ Игрок 1' : '🛡 Игрок 2'} — ${store.emoji} ${store.name}`;
+
+  updateTopBar();
+
+  // Next boost hint
+  const boost = G.nextBoost[player];
+  const boostEl = document.getElementById('play-next-boost');
+  if (boost > 0) {
+    boostEl.style.display = 'block';
+    boostEl.textContent = `✨ Бонус +${boost} к следующей карте активен!`;
+  } else {
+    boostEl.style.display = 'none';
+  }
+
+  // Render hand
+  const hand = document.getElementById('play-hand');
+  hand.innerHTML = '';
+  G.hands[player].forEach(card => {
+    const div = document.createElement('div');
+    div.className = 'card ' + (card.type === 'special' ? 'is-special' : '') + (card.used ? ' used' : '');
+    if (G.chosen[player] && G.chosen[player].uid === card.uid) div.classList.add('chosen');
+
+    const imgSrc = cardImgSrc(card);
+    let effectHtml = '';
+    if (card.type === 'special') effectHtml = `<div class="card-special-tag">✨ ${card.desc}</div>`;
+
+    div.innerHTML = `
+      <img src="${imgSrc}" alt="${card.name}" style="width:100%;height:100%;object-fit:cover">
+      <div class="card-overlay">
+        <div class="card-name">${card.emoji || '🃏'} ${card.name}</div>
+        ${effectHtml}
+      </div>
+      <div class="card-power-badge">${card.power}</div>
+    `;
+
+    if (!card.used) {
+      div.onclick = () => selectCard(player, card);
+    }
+    hand.appendChild(div);
+  });
+
+  // Confirm area
+  const area = document.getElementById('play-confirm-area');
+  area.innerHTML = '';
+  if (G.chosen[player]) {
+    const c = G.chosen[player];
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-gold';
+    btn.textContent = `Сыграть: ${c.emoji || '🃏'} ${c.name} (сила ${c.power}) →`;
+    btn.onclick = () => confirmCard(player);
+    area.appendChild(btn);
+  }
+}
+
+function selectCard(player, card) {
+  if (card.used) return;
+  G.chosen[player] = card;
+  renderPlayScreen(player);
+}
+
+function confirmCard(player) {
+  if (!G.chosen[player]) return;
+  // Mark card as used
+  const idx = G.hands[player].findIndex(c => c.uid === G.chosen[player].uid);
+  if (idx >= 0) G.hands[player][idx].used = true;
+
+  if (player === 'p1') {
+    // Show handoff
+    document.getElementById('ho-title').textContent = 'Передайте устройство!';
+    document.getElementById('ho-sub').innerHTML =
+      `Игрок 1 сделал выбор.<br>Передайте устройство <b>Игроку 2</b>.`;
+    showScreen('screen-handoff');
+  } else {
+    // P2 done — resolve battle
+    resolveBattle();
+  }
+}
+
+// ════════════════════════════════════
+//  BATTLE RESOLUTION
+// ════════════════════════════════════
+
+function resolveBattle() {
+  const c1 = G.chosen.p1;
+  const c2 = G.chosen.p2;
+
+  let p1Power = c1.power;
+  let p2Power = c2.power;
+  const p1Effects = [];
+  const p2Effects = [];
+
+  // Apply pending next boosts
+  if (G.nextBoost.p1 > 0) {
+    p1Power += G.nextBoost.p1;
+    p1Effects.push(`+${G.nextBoost.p1} бонус`);
+    G.nextBoost.p1 = 0;
+  }
+  if (G.nextBoost.p2 > 0) {
+    p2Power += G.nextBoost.p2;
+    p2Effects.push(`+${G.nextBoost.p2} бонус`);
+    G.nextBoost.p2 = 0;
+  }
+
+  // GALYA_CANCEL: отменяет ВСЕ эффекты соперника, включая BLOCK
+  const p2EffectCanceled = (c1.effect === 'GALYA_CANCEL'); // П1 отменяет эффект П2
+  const p1EffectCanceled = (c2.effect === 'GALYA_CANCEL'); // П2 отменяет эффект П1
+
+  if (p2EffectCanceled) { p1Effects.push('📣 Галя, отмена! — эффект соперника сброшен'); }
+  if (p1EffectCanceled) { p2Effects.push('📣 Галя, отмена! — эффект соперника сброшен'); }
+
+  // BLOCK — блокирует эффект соперника (но не Галю!)
+  const p1Blocked = (c2.effect === 'BLOCK') && !p2EffectCanceled;
+  const p2Blocked = (c1.effect === 'BLOCK') && !p1EffectCanceled;
+
+  if (c1.effect === 'BLOCK' && !p1EffectCanceled) p1Effects.push('🛡 блок!');
+  if (c2.effect === 'BLOCK' && !p2EffectCanceled) p2Effects.push('🛡 блок!');
+
+  // EGGS_SPECIAL — «Слава яйцам!»: если у соперника яйца — автопобеда
+  let eggsWinner = null;
+  if (c1.effect === 'EGGS_SPECIAL' && !p1EffectCanceled && !p1Blocked && c2.id === 'eggs') {
+    eggsWinner = 'p1';
+    G.nextBoost.p1 = (G.nextBoost.p1 || 0) + 2;
+    p1Effects.push('🥚 СЛАВА ЯЙЦАМ! Автопобеда + следующая +2');
+  }
+  if (c2.effect === 'EGGS_SPECIAL' && !p2EffectCanceled && !p2Blocked && c1.id === 'eggs') {
+    eggsWinner = 'p2';
+    G.nextBoost.p2 = (G.nextBoost.p2 || 0) + 2;
+    p2Effects.push('🥚 СЛАВА ЯЙЦАМ! Автопобеда + следующая +2');
+  }
+
+  // POWER_BOOST
+  if (c1.effect === 'POWER_BOOST' && !p1Blocked) {
+    const amt = c1.boostAmt || 3;
+    p1Power += amt;
+    p1Effects.push(`+${amt} к силе`);
+  }
+  if (c2.effect === 'POWER_BOOST' && !p2Blocked) {
+    const amt = c2.boostAmt || 3;
+    p2Power += amt;
+    p2Effects.push(`+${amt} к силе`);
+  }
+
+  // DOUBLE
+  if (c1.effect === 'DOUBLE' && !p1Blocked) {
+    p1Power *= 2;
+    p1Effects.push('×2 удвоение');
+  }
+  if (c2.effect === 'DOUBLE' && !p2Blocked) {
+    p2Power *= 2;
+    p2Effects.push('×2 удвоение');
+  }
+
+  // DEBUFF (applied to opponent)
+  if (c1.effect === 'DEBUFF' && !p2Blocked) {
+    const amt = c1.debuffAmt || 2;
+    p2Power = Math.max(1, p2Power - amt);
+    p2Effects.push(`−${amt} дебафф`);
+  }
+  if (c2.effect === 'DEBUFF' && !p1Blocked) {
+    const amt = c2.debuffAmt || 2;
+    p1Power = Math.max(1, p1Power - amt);
+    p1Effects.push(`−${amt} дебафф`);
+  }
+
+  // Schedule NEXT_BOOST for next turn
+  if (c1.effect === 'NEXT_BOOST' && !p1Blocked) {
+    G.nextBoost.p1 = (G.nextBoost.p1 || 0) + (c1.boostAmt || 2);
+    p1Effects.push(`следующая +${c1.boostAmt || 2}`);
+  }
+  if (c2.effect === 'NEXT_BOOST' && !p2Blocked) {
+    G.nextBoost.p2 = (G.nextBoost.p2 || 0) + (c2.boostAmt || 2);
+    p2Effects.push(`следующая +${c2.boostAmt || 2}`);
+  }
+
+  // Determine winner
+  let winner;
+  if (eggsWinner) {
+    winner = eggsWinner; // EGGS_SPECIAL overrides everything
+  } else if (p1Power > p2Power) {
+    winner = 'p1';
+  } else if (p2Power > p1Power) {
+    winner = 'p2';
+  } else {
+    // Tie — STEAL_TIE wins (if not blocked/cancelled)
+    if (c1.effect === 'STEAL_TIE' && !p1Blocked)      { winner = 'p1'; p1Effects.push('ничья → победа!'); }
+    else if (c2.effect === 'STEAL_TIE' && !p2Blocked)  { winner = 'p2'; p2Effects.push('ничья → победа!'); }
+    else winner = 'tie';
+  }
+
+  if (winner === 'p1') G.roundDuels.p1++;
+  else if (winner === 'p2') G.roundDuels.p2++;
+
+  G.history.push({ turn: G.turn+1, c1, c2, p1Power, p2Power, winner });
+
+  showBattleResult(c1, c2, p1Power, p2Power, p1Effects, p2Effects, winner);
+}
+
+function showBattleResult(c1, c2, p1Power, p2Power, p1Eff, p2Eff, winner) {
+  // Build arena card HTML
+  function arenaCardImg(card) {
+    return `<img src="${cardImgSrc(card)}" alt="${card.name}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">`;
+  }
+
+  document.getElementById('arena-p1-img').innerHTML = arenaCardImg(c1);
+  document.getElementById('arena-p1-name').textContent = `${c1.emoji || '🃏'} ${c1.name}`;
+  document.getElementById('arena-p1-pow').textContent = p1Power;
+  document.getElementById('arena-p1-eff').innerHTML = p1Eff.length ? p1Eff.map(e=>`<span class="effect-applied">${e}</span>`).join(' ') : '';
+
+  document.getElementById('arena-p2-img').innerHTML = arenaCardImg(c2);
+  document.getElementById('arena-p2-name').textContent = `${c2.emoji || '🃏'} ${c2.name}`;
+  document.getElementById('arena-p2-pow').textContent = p2Power;
+  document.getElementById('arena-p2-eff').innerHTML = p2Eff.length ? p2Eff.map(e=>`<span class="effect-applied">${e}</span>`).join(' ') : '';
+
+  const banner = document.getElementById('bt-result-banner');
+  if (winner === 'p1') {
+    banner.className = 'battle-result-banner result-p1win';
+    banner.textContent = '🏅 Победа Игрока 1!';
+  } else if (winner === 'p2') {
+    banner.className = 'battle-result-banner result-p2win';
+    banner.textContent = '🏅 Победа Игрока 2!';
+  } else {
+    banner.className = 'battle-result-banner result-tie';
+    banner.textContent = '🤝 Ничья — очко не начисляется';
+  }
+
+  document.getElementById('bt-turn').textContent = G.turn + 1;
+  document.getElementById('bt-p1-duels').textContent = G.roundDuels.p1;
+  document.getElementById('bt-p2-duels').textContent = G.roundDuels.p2;
+  document.getElementById('bt-store-names').textContent =
+    `${storeById(G.stores.p1).name} vs ${storeById(G.stores.p2).name}`;
+  renderRoundDots('bt-rounds');
+
+  const isLastTurn = G.turn >= 9;
+  const nextBtn = document.getElementById('bt-next-btn');
+  nextBtn.textContent = isLastTurn ? '📊 Итоги раунда →' : 'Следующий ход →';
+
+  showScreen('screen-battle');
+}
+
+function afterBattle() {
+  G.turn++;
+  G.chosen = {p1:null, p2:null};
+
+  if (G.turn >= 10) {
+    endRound();
+  } else {
+    showP1Turn();
+  }
+}
+
+// ════════════════════════════════════
+//  ROUND END
+// ════════════════════════════════════
+
+function endRound() {
+  const d1 = G.roundDuels.p1;
+  const d2 = G.roundDuels.p2;
+  let roundWinner;
+  if (d1 > d2) roundWinner = 'p1';
+  else if (d2 > d1) roundWinner = 'p2';
+  else roundWinner = 'tie';
+
+  if (roundWinner === 'p1') G.matchScore.p1++;
+  else if (roundWinner === 'p2') G.matchScore.p2++;
+
+  G.allHistory.push({ round: G.round, winner: roundWinner, duels: {...G.roundDuels}, history: [...G.history] });
+
+  // Badge & title
+  const badge = document.getElementById('re-badge');
+  const title = document.getElementById('re-title');
+  const scoreLine = document.getElementById('re-score-line');
+
+  if (roundWinner === 'p1') {
+    badge.textContent = '🏆';
+    title.textContent = `Раунд ${G.round} за Игроком 1!`;
+    title.style.color = '#ff9999';
+  } else if (roundWinner === 'p2') {
+    badge.textContent = '🏆';
+    title.textContent = `Раунд ${G.round} за Игроком 2!`;
+    title.style.color = '#7ff';
+  } else {
+    badge.textContent = '🤝';
+    title.textContent = `Раунд ${G.round} — ничья!`;
+    title.style.color = '#ccc';
+  }
+
+  const s1 = storeById(G.stores.p1), s2 = storeById(G.stores.p2);
+  scoreLine.textContent =
+    `Дуэли: ${d1}:${d2} | ${s1.name} vs ${s2.name} | Счёт матча: ${G.matchScore.p1}:${G.matchScore.p2}`;
+
+  // History grid
+  const histGrid = document.getElementById('re-history');
+  histGrid.innerHTML = '';
+  G.history.forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'hist-item ' + (h.winner==='p1'?'hw-p1':h.winner==='p2'?'hw-p2':'hw-tie');
+    const icon = h.winner==='p1'?'🔴':h.winner==='p2'?'🔵':'⚪️';
+    div.innerHTML = `
+      <div class="hist-turn">Ход ${h.turn}</div>
+      <div class="hist-result">${icon}</div>
+      <div style="font-size:9px;color:#888">${h.p1Power}:${h.p2Power}</div>
+    `;
+    histGrid.appendChild(div);
+  });
+
+  // Change store box
+  const changeBox = document.getElementById('re-change-box');
+  changeBox.innerHTML = '';
+  const nextArea = document.getElementById('re-next-area');
+  nextArea.innerHTML = '';
+
+  // Check if game is over
+  const gameOver = G.matchScore.p1 >= 2 || G.matchScore.p2 >= 2 || G.round >= 3;
+
+  if (gameOver) {
+    nextArea.innerHTML = `<button class="btn btn-gold" onclick="endGame()">🏆 Финал игры →</button>`;
+    return;
+  }
+
+  // Offer store change to loser
+  G.round++;
+
+  if (roundWinner === 'p1') {
+    // P2 lost - can change
+    changeBox.innerHTML = `
+      <div class="change-store-box">
+        <div class="change-store-title">🔄 Игрок 2 может сменить сеть</div>
+        <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин на следующий раунд?</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-p2" onclick="offerChange('p2')">Сменить сеть</button>
+          <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s2.name}</button>
+        </div>
+      </div>`;
+  } else if (roundWinner === 'p2') {
+    // P1 lost - can change
+    changeBox.innerHTML = `
+      <div class="change-store-box">
+        <div class="change-store-title">🔄 Игрок 1 может сменить сеть</div>
+        <div class="change-store-sub">Вы проиграли раунд. Хотите сменить магазин на следующий раунд?</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-p1" onclick="offerChange('p1')">Сменить сеть</button>
+          <button class="btn btn-outline" onclick="keepStores()">Остаться в ${s1.name}</button>
+        </div>
+      </div>`;
+  } else {
+    // Tie - no change offered, just continue
+    nextArea.innerHTML = `<button class="btn btn-gold" onclick="keepStores()">▶ Следующий раунд →</button>`;
+  }
+
+  showScreen('screen-round-end');
+}
+
+function offerChange(player) {
+  G.ssPhase = player === 'p1' ? 'p1only' : 'p2only';
+  G.ssP1Picked = G.stores.p1;
+  G.ssP2Picked = G.stores.p2;
+  renderStoreSelect();
+  showScreen('screen-store-select');
+}
+
+function keepStores() {
+  showRoundIntro();
+}
+
+// ════════════════════════════════════
+//  GAME END
+// ════════════════════════════════════
+
+function endGame() {
+  const winner = G.matchScore.p1 > G.matchScore.p2 ? 'p1'
+               : G.matchScore.p2 > G.matchScore.p1 ? 'p2'
+               : 'tie';
+
+  const titleEl = document.getElementById('ge-title');
+  const subEl   = document.getElementById('ge-sub');
+  if (winner === 'p1') {
+    titleEl.textContent = '🎉 Победа Игрока 1!';
+    document.querySelector('.trophy').textContent = '🏆';
+  } else if (winner === 'p2') {
+    titleEl.textContent = '🎉 Победа Игрока 2!';
+    document.querySelector('.trophy').textContent = '🏆';
+  } else {
+    titleEl.textContent = '🤝 Ничья!';
+    document.querySelector('.trophy').textContent = '🤝';
+  }
+  subEl.textContent = `Итоговый счёт: ${G.matchScore.p1} : ${G.matchScore.p2} по раундам`;
+
+  document.getElementById('ge-p1-rounds').textContent = G.matchScore.p1;
+  document.getElementById('ge-p2-rounds').textContent = G.matchScore.p2;
+
+  const s1 = storeById(G.stores.p1), s2 = storeById(G.stores.p2);
+  document.getElementById('ge-store-names').textContent =
+    `Игрок 1: ${s1.emoji} ${s1.name}  •  Игрок 2: ${s2.emoji} ${s2.name}`;
+
+  showScreen('screen-game-end');
+}
+</script>
+</body>
+</html>

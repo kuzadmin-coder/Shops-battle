@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="170" viewBox="0 0 120 170">
+  <rect width="120" height="170" fill="#e1f5fe" rx="14"/>
+  <rect x="5" y="5" width="110" height="160" fill="none" stroke="#bbb" stroke-width="2" rx="10"/>
+  <text x="60" y="85" font-size="46" text-anchor="middle" font-family="Segoe UI Emoji,sans-serif">❄️</text>
+  <text x="60" y="120" font-family="Segoe UI,Arial" font-size="13" fill="#333" text-anchor="middle" font-weight="bold">Заморозка</text>
+  <text x="60" y="145" font-family="Segoe UI,Arial" font-size="9" fill="#888" text-anchor="middle">обычная карта</text>
+</svg>

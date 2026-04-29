@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="170" viewBox="0 0 120 170">
+  <rect width="120" height="170" fill="#fce4ec" rx="14"/>
+  <rect x="4" y="4" width="112" height="162" fill="none" stroke="#880e4f" stroke-width="3" rx="11"/>
+  <rect x="4" y="4" width="112" height="162" fill="none" stroke="gold" stroke-width="1.5" stroke-dasharray="5,4" rx="11" opacity="0.7"/>
+  <!-- пивная кружка фон -->
+  <circle cx="60" cy="72" r="34" fill="#880e4f" opacity="0.10"/>
+  <!-- алкаш -->
+  <text x="60" y="82" font-size="44" text-anchor="middle" font-family="Segoe UI Emoji,sans-serif">🍺</text>
+  <text x="18" y="58" font-size="20" font-family="Segoe UI Emoji">🥴</text>
+  <text x="82" y="62" font-size="16" font-family="Segoe UI Emoji">💫</text>
+  <text x="60" y="115" font-family="Segoe UI,Arial" font-size="10" fill="#880e4f" text-anchor="middle" font-weight="bold">Призвать алкаша!</text>
+  <text x="60" y="148" font-family="Segoe UI,Arial" font-size="9" fill="goldenrod" text-anchor="middle">✨ особая карта</text>
+</svg>
