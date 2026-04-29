@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="170" viewBox="0 0 120 170">
+  <rect width="120" height="170" fill="#fff3e0" rx="14"/>
+  <rect x="4" y="4" width="112" height="162" fill="none" stroke="#e65100" stroke-width="3" rx="11"/>
+  <rect x="4" y="4" width="112" height="162" fill="none" stroke="gold" stroke-width="1.5" stroke-dasharray="5,4" rx="11" opacity="0.7"/>
+
+  <!-- вчерашний день -->
+  <text x="60" y="30" font-family="Segoe UI,Arial" font-size="9" fill="#888" text-anchor="middle">📅 вчера</text>
+
+  <!-- багет (горизонтально, чёрствый) -->
+  <!-- основа -->
+  <rect x="14" y="64" width="92" height="28" rx="14" fill="#a1887f"/>
+  <!-- корочка верх -->
+  <rect x="14" y="64" width="92" height="14" rx="14" fill="#c8a96e"/>
+  <!-- надрезы (характерные для багета) -->
+  <path d="M30,64 Q33,54 36,64" fill="none" stroke="#8d6e63" stroke-width="2"/>
+  <path d="M45,64 Q48,54 51,64" fill="none" stroke="#8d6e63" stroke-width="2"/>
+  <path d="M60,64 Q63,54 66,64" fill="none" stroke="#8d6e63" stroke-width="2"/>
+  <path d="M75,64 Q78,54 81,64" fill="none" stroke="#8d6e63" stroke-width="2"/>
+  <!-- трещина (чёрствый!) -->
+  <path d="M20,76 Q40,70 60,76 Q80,82 100,76" fill="none" stroke="#6d4c41" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <!-- крошки -->
+  <circle cx="30" cy="96" r="2" fill="#c8a96e" opacity="0.8"/>
+  <circle cx="50" cy="98" r="1.5" fill="#c8a96e" opacity="0.7"/>
+  <circle cx="70" cy="95" r="2" fill="#c8a96e" opacity="0.8"/>
+  <circle cx="85" cy="99" r="1.5" fill="#c8a96e" opacity="0.7"/>
+  <!-- мухи (совсем вчерашний) -->
+  <text x="22" y="60" font-size="10" font-family="Segoe UI Emoji">🪰</text>
+  <text x="88" y="98" font-size="9" font-family="Segoe UI Emoji">🪰</text>
+
+  <text x="60" y="118" font-family="Segoe UI,Arial" font-size="10" fill="#e65100" text-anchor="middle" font-weight="900">Вчерашний багет</text>
+  <text x="60" y="150" font-family="Segoe UI,Arial" font-size="9" fill="goldenrod" text-anchor="middle">✨ особая карта</text>
+</svg>

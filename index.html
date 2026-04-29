@@ -93,6 +93,9 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 .card-special-tag{font-size:9px;color:gold;margin-top:2px}
 .card.is-special{border:3px solid gold}
 .card.is-special .card-power-badge{background:rgba(180,120,0,.9);color:#fff}
+.card.is-joker{border:3px solid #e040fb;box-shadow:0 0 12px rgba(224,64,251,.5),0 0 24px rgba(255,215,0,.3)}
+.card.is-joker .card-power-badge{background:linear-gradient(135deg,#e040fb,#ff6f00);color:#fff}
+.joker-crown{position:absolute;top:4px;left:6px;font-size:12px;line-height:1}
 
 /* ── Handoff ── */
 #screen-handoff{text-align:center}
@@ -314,6 +317,7 @@ const STORES = [
       {name:'Клубная карта',        power:8,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💳'},
       {name:'Свежая доставка',      power:7,  effect:'NEXT_BOOST',  desc:'Следующая карта +3 к силе',         emoji:'🚚', boostAmt:3},
       {name:'Гастрономический зал', power:9,  effect:'BLOCK',       desc:'Отменяет эффект карты соперника',   emoji:'🏪'},
+      {name:'Многосося',            power:7,  effect:'NEXT_BOOST',  desc:'Лосось придаёт сил! Следующая карта +4', emoji:'🐟', boostAmt:4},
     ]
   },
   { id:'pyaterochka',   name:'Пятёрочка',        tag:'Выгода каждый день',    emoji:'⭐', color:'#e65100',
@@ -323,6 +327,7 @@ const STORES = [
       {name:'Много магазинов',       power:8,  effect:'NEXT_BOOST',  desc:'Следующая карта +2 к силе',         emoji:'🗺️', boostAmt:2},
       {name:'Галя, отмена!',        power:7,  effect:'GALYA_CANCEL',desc:'Отменяет ВСЕ эффекты соперника, даже блок!', emoji:'📣'},
       {name:'Тёмное прошлое Пятачка',       power:9,  effect:'POWER_BOOST', desc:'Скрытая сила свиньи: +3 к силе',   emoji:'🐷', boostAmt:3},
+      {name:'Вчерашний багет',      power:6,  effect:'DEBUFF',      desc:'Твёрдый как камень! −3 к силе соперника', emoji:'🥖', debuffAmt:3},
     ]
   },
   { id:'chizhik',       name:'Чижик',            tag:'Дешевле некуда!',       emoji:'🐦', color:'#1565c0',
@@ -330,6 +335,7 @@ const STORES = [
       {name:'Ультра-бюджет',        power:9,  effect:'BLOCK',       desc:'Отменяет эффект карты соперника',   emoji:'💙'},
       {name:'Свой бренд',           power:7,  effect:'POWER_BOOST', desc:'Эта карта +4 к силе',               emoji:'🐦', boostAmt:4},
       {name:'Дискаунтер',           power:6,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💸'},
+      {name:'Пыжык',               power:5,  effect:'DOUBLE',      desc:'Пыжится изо всех сил — сила ×2!',   emoji:'🐤'},
     ]
   },
   { id:'krasnoe_beloe', name:'Красное и Белое',  tag:'Широкий выбор',         emoji:'🍷', color:'#880e4f',
@@ -346,6 +352,7 @@ const STORES = [
       {name:'Местные товары',       power:7,  effect:'POWER_BOOST', desc:'Эта карта +3 к силе',               emoji:'🌿', boostAmt:3},
       {name:'Соседний магазин',     power:6,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'🏠'},
       {name:'Акция недели',         power:8,  effect:'DEBUFF',      desc:'Карта соперника −2 к силе',         emoji:'📅', debuffAmt:2},
+      {name:'Вчерашний багет',      power:6,  effect:'DEBUFF',      desc:'Твёрдый как камень! −3 к силе соперника', emoji:'🥖', debuffAmt:3},
     ]
   },
   { id:'verniy',        name:'Верный',           tag:'Проверенное качество',  emoji:'✅', color:'#283593',
@@ -354,6 +361,7 @@ const STORES = [
       {name:'Бонус баллы',          power:8,  effect:'NEXT_BOOST',  desc:'Следующая карта +2 к силе',         emoji:'🎁', boostAmt:2},
       {name:'Стабильность',         power:9,  effect:'POWER_BOOST', desc:'Эта карта +3 к силе',               emoji:'🛡', boostAmt:3},
       {name:'Слава яйцам!',         power:6,  effect:'EGGS_SPECIAL',desc:'Если у соперника яйца — победа! И следующая +2', emoji:'🥚'},
+      {name:'Вчерашний багет',      power:6,  effect:'DEBUFF',      desc:'Твёрдый как камень! −3 к силе соперника', emoji:'🥖', debuffAmt:3},
     ]
   },
   { id:'azbuka_vkusa',  name:'Азбука Вкуса',     tag:'Премиум качество',      emoji:'🍽', color:'#3a3a3a',
@@ -378,6 +386,7 @@ const STORES = [
       {name:'Магнит-акция',         power:7,  effect:'DEBUFF',      desc:'Карта соперника −2 к силе',         emoji:'📢', debuffAmt:2},
       {name:'Кешбэк',               power:9,  effect:'STEAL_TIE',   desc:'При ничьей — победа!',              emoji:'💰'},
       {name:'Призвать Краснодар',   power:8,  effect:'POWER_BOOST', desc:'Армия Краснодара! +5 к силе',       emoji:'🏙️', boostAmt:5},
+      {name:'Вчерашний багет',      power:6,  effect:'DEBUFF',      desc:'Твёрдый как камень! −3 к силе соперника', emoji:'🥖', debuffAmt:3},
     ]
   },
   { id:'lenta',         name:'Лента',            tag:'Гипермаркет для всей семьи', emoji:'🟡', color:'#e53935',
@@ -404,7 +413,8 @@ const REGULAR_CARDS = [
   {id:'fish',    name:'Рыба',     power:7, emoji:'🐟'},
   {id:'eggs',    name:'Яйца',     power:4, emoji:'🥚'},
   {id:'pasta',   name:'Макароны', power:4, emoji:'🍝'},
-  {id:'oil',     name:'Масло',    power:5, emoji:'🫙'},
+  {id:'oil',      name:'Масло',       power:5, emoji:'🫙'},
+  {id:'vip_cheese',name:'VIP сырок Александров', power:7, emoji:'🧀'},
 ];
 
 // ════════════════════════════════════
@@ -742,7 +752,8 @@ function renderPlayScreen(player) {
   hand.innerHTML = '';
   G.hands[player].forEach(card => {
     const div = document.createElement('div');
-    div.className = 'card ' + (card.type === 'special' ? 'is-special' : '') + (card.used ? ' used' : '');
+    const isJoker = card.id === 'vip_cheese';
+    div.className = 'card ' + (isJoker ? 'is-joker' : card.type === 'special' ? 'is-special' : '') + (card.used ? ' used' : '');
     if (G.chosen[player] && G.chosen[player].uid === card.uid) div.classList.add('chosen');
 
     const imgSrc = cardImgSrc(card);
@@ -751,9 +762,10 @@ function renderPlayScreen(player) {
 
     div.innerHTML = `
       <img src="${imgSrc}" alt="${card.name}" style="width:100%;height:100%;object-fit:cover">
+      ${isJoker ? '<div class="joker-crown">🃏</div>' : ''}
       <div class="card-overlay">
         <div class="card-name">${card.emoji || '🃏'} ${card.name}</div>
-        ${effectHtml}
+        ${isJoker ? '<div class="card-special-tag">✨ ДЖОКЕР — всегда побеждает</div>' : effectHtml}
       </div>
       <div class="card-power-badge">${card.power}</div>
     `;
@@ -929,9 +941,22 @@ function resolveBattle() {
     p2Effects.push(`следующая +${c2.boostAmt || 2}`);
   }
 
+  // ДЖОКЕР: VIP сырок Александров — побеждает любую карту
+  // Можно нейтрализовать только картой «Галя, отмена!» соперника
+  const p1IsJoker = (c1.id === 'vip_cheese') && !p1EffectCanceled;
+  const p2IsJoker = (c2.id === 'vip_cheese') && !p2EffectCanceled;
+  if (p1IsJoker) p1Effects.push('🃏 ДЖОКЕР!');
+  if (p2IsJoker) p2Effects.push('🃏 ДЖОКЕР!');
+
   // Determine winner
   let winner;
-  if (eggsWinner) {
+  if (p1IsJoker && p2IsJoker) {
+    winner = 'tie'; // оба джокера — ничья
+  } else if (p1IsJoker) {
+    winner = 'p1';
+  } else if (p2IsJoker) {
+    winner = 'p2';
+  } else if (eggsWinner) {
     winner = eggsWinner; // EGGS_SPECIAL overrides everything
   } else if (p1Power > p2Power) {
     winner = 'p1';

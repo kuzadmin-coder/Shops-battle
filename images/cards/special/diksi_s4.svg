@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="10" fill="#f0fff0"/>
+  <!-- Baguette body -->
+  <ellipse cx="60" cy="68" rx="38" ry="14" fill="#c8a060" transform="rotate(-18,60,68)"/>
+  <ellipse cx="60" cy="65" rx="36" ry="11" fill="#d4aa70" transform="rotate(-18,60,65)"/>
+  <!-- Crust score lines -->
+  <line x1="42" y1="54" x2="38" y2="66" stroke="#a07840" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="52" y1="51" x2="48" y2="63" stroke="#a07840" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="62" y1="52" x2="58" y2="64" stroke="#a07840" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="72" y1="55" x2="68" y2="67" stroke="#a07840" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Mold spots -->
+  <circle cx="45" cy="60" r="3" fill="#4a7c4a" opacity="0.7"/>
+  <circle cx="60" cy="57" r="2.5" fill="#4a7c4a" opacity="0.6"/>
+  <circle cx="74" cy="62" r="2" fill="#6aaf6a" opacity="0.6"/>
+  <circle cx="52" cy="65" r="2" fill="#4a7c4a" opacity="0.5"/>
+  <!-- Flies -->
+  <!-- Fly 1 -->
+  <g transform="translate(35,38)">
+    <ellipse cx="0" cy="0" rx="3" ry="1.5" fill="#222" opacity="0.85"/>
+    <ellipse cx="-2" cy="-2" rx="3.5" ry="2" fill="#aaddff" opacity="0.5" transform="rotate(-20)"/>
+    <ellipse cx="2" cy="-2" rx="3.5" ry="2" fill="#aaddff" opacity="0.5" transform="rotate(20)"/>
+    <circle cx="0" cy="-1" r="1" fill="#111"/>
+  </g>
+  <!-- Fly 2 -->
+  <g transform="translate(72,34)">
+    <ellipse cx="0" cy="0" rx="3" ry="1.5" fill="#222" opacity="0.85"/>
+    <ellipse cx="-2" cy="-2" rx="3.5" ry="2" fill="#aaddff" opacity="0.5" transform="rotate(-20)"/>
+    <ellipse cx="2" cy="-2" rx="3.5" ry="2" fill="#aaddff" opacity="0.5" transform="rotate(20)"/>
+    <circle cx="0" cy="-1" r="1" fill="#111"/>
+  </g>
+  <!-- Fly 3 -->
+  <g transform="translate(55,30)">
+    <ellipse cx="0" cy="0" rx="3" ry="1.5" fill="#222" opacity="0.85"/>
+    <ellipse cx="-2" cy="-2" rx="3.5" ry="2" fill="#aaddff" opacity="0.5" transform="rotate(-20)"/>
+    <ellipse cx="2" cy="-2" rx="3.5" ry="2" fill="#aaddff" opacity="0.5" transform="rotate(20)"/>
+    <circle cx="0" cy="-1" r="1" fill="#111"/>
+  </g>
+  <!-- Stink lines -->
+  <path d="M48 46 Q46 40 48 34" stroke="#2e7d32" stroke-width="1.2" fill="none" stroke-dasharray="2,2" opacity="0.6"/>
+  <path d="M60 43 Q58 36 60 30" stroke="#2e7d32" stroke-width="1.2" fill="none" stroke-dasharray="2,2" opacity="0.6"/>
+  <path d="M72 46 Q74 40 72 34" stroke="#2e7d32" stroke-width="1.2" fill="none" stroke-dasharray="2,2" opacity="0.6"/>
+  <!-- Diksi green label -->
+  <rect x="8" y="88" width="104" height="22" rx="6" fill="#2e7d32"/>
+  <text x="60" y="104" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="white">Вчерашний багет</text>
+</svg>

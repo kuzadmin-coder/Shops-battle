@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="170" viewBox="0 0 120 170">
+  <rect width="120" height="170" fill="#fff3f3" rx="14"/>
+  <rect x="4" y="4" width="112" height="162" fill="none" stroke="#c62828" stroke-width="3" rx="11"/>
+  <rect x="4" y="4" width="112" height="162" fill="none" stroke="gold" stroke-width="1.5" stroke-dasharray="5,4" rx="11" opacity="0.8"/>
+
+  <!-- вода / фон -->
+  <rect x="10" y="88" width="100" height="40" fill="#bbdefb" rx="6" opacity="0.5"/>
+  <path d="M10,96 Q30,90 50,96 Q70,102 90,96 Q105,92 110,96" fill="none" stroke="#64b5f6" stroke-width="2"/>
+
+  <!-- хвост лосося -->
+  <polygon points="95,65 112,52 112,80" fill="#ef9a9a"/>
+  <line x1="95" y1="65" x2="112" y2="52" stroke="#e57373" stroke-width="1.5"/>
+  <line x1="95" y1="65" x2="112" y2="80" stroke="#e57373" stroke-width="1.5"/>
+  <line x1="108" y1="55" x2="108" y2="77" stroke="#e57373" stroke-width="1"/>
+
+  <!-- тело лосося -->
+  <ellipse cx="58" cy="66" rx="38" ry="16" fill="#ef5350"/>
+
+  <!-- брюхо (светлее) -->
+  <ellipse cx="54" cy="70" rx="28" ry="9" fill="#ffcdd2" opacity="0.85"/>
+
+  <!-- спинной плавник -->
+  <path d="M45,50 Q55,36 68,50" fill="#e53935" stroke="#c62828" stroke-width="1"/>
+
+  <!-- нижний плавник -->
+  <path d="M52,79 Q57,88 62,79" fill="#ef9a9a" stroke="#e57373" stroke-width="1"/>
+
+  <!-- чешуя (дуги) -->
+  <path d="M48,60 Q54,54 60,60" fill="none" stroke="#c62828" stroke-width="1.2" opacity="0.6"/>
+  <path d="M58,58 Q64,52 70,58" fill="none" stroke="#c62828" stroke-width="1.2" opacity="0.6"/>
+  <path d="M68,60 Q74,54 80,60" fill="none" stroke="#c62828" stroke-width="1.2" opacity="0.6"/>
+  <path d="M44,66 Q50,60 56,66" fill="none" stroke="#c62828" stroke-width="1" opacity="0.5"/>
+  <path d="M62,64 Q68,58 74,64" fill="none" stroke="#c62828" stroke-width="1" opacity="0.5"/>
+
+  <!-- голова -->
+  <ellipse cx="24" cy="66" rx="16" ry="13" fill="#e53935"/>
+  <!-- рот -->
+  <path d="M10,68 Q14,72 18,68" fill="none" stroke="#ffcdd2" stroke-width="2" stroke-linecap="round"/>
+  <!-- глаз -->
+  <circle cx="22" cy="61" r="5" fill="#fff"/>
+  <circle cx="22" cy="61" r="3" fill="#1a237e"/>
+  <circle cx="23" cy="60" r="1" fill="#fff"/>
+
+  <!-- маленькие лососи сверху -->
+  <text x="14" y="46" font-size="11" font-family="Segoe UI Emoji">🐟</text>
+  <text x="88" y="44" font-size="10" font-family="Segoe UI Emoji">🐟</text>
+
+  <!-- название -->
+  <text x="60" y="115" font-family="Segoe UI,Arial" font-size="11" fill="#c62828" text-anchor="middle" font-weight="900">Многосося</text>
+  <text x="60" y="150" font-family="Segoe UI,Arial" font-size="9" fill="goldenrod" text-anchor="middle">✨ особая карта</text>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="170" viewBox="0 0 120 170">
+  <rect width="120" height="170" fill="#fffde7" rx="14"/>
+  <rect x="5" y="5" width="110" height="160" fill="none" stroke="#f9a825" stroke-width="2" rx="10"/>
+  <!-- золотой фон для VIP -->
+  <rect x="10" y="10" width="100" height="36" fill="#f9a825" rx="8" opacity="0.25"/>
+  <text x="60" y="32" font-family="Segoe UI,Arial" font-size="11" fill="#e65100" text-anchor="middle" font-weight="900">★ V I P ★</text>
+  <!-- сыр -->
+  <polygon points="25,110 95,110 85,68 35,68" fill="#fdd835"/>
+  <polygon points="35,68 85,68 80,60 40,60" fill="#ffee58"/>
+  <!-- дырки в сыре -->
+  <circle cx="50" cy="85" r="6" fill="#fff9c4" opacity="0.8"/>
+  <circle cx="70" cy="92" r="5" fill="#fff9c4" opacity="0.8"/>
+  <circle cx="58" cy="100" r="4" fill="#fff9c4" opacity="0.8"/>
+  <!-- название -->
+  <text x="60" y="128" font-family="Segoe UI,Arial" font-size="9" fill="#5d4037" text-anchor="middle" font-weight="700">VIP сырок</text>
+  <text x="60" y="140" font-family="Segoe UI,Arial" font-size="8" fill="#795548" text-anchor="middle">Александров</text>
+  <text x="60" y="155" font-family="Segoe UI,Arial" font-size="9" fill="#f9a825" text-anchor="middle">обычная карта</text>
+</svg>
